@@ -1,0 +1,3 @@
+Want to create a bunch of small services with Python based around networking.  Things like whats my network topology, packets coming in, and can you connect out from that network.  What about different safety measures and upgrading to IPV6?
+
+Chat GPT Packet Sniffer???
