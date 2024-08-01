@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt 
-symbolDuration = 5
-fc = 1/2.0
-
-def BASK(bitStream: str):
+def modulateBASK(bitStream: str, symbolDuration = 1, fc = 1/2):
     s = .001
     totalDuration = symbolDuration * len(bitStream)
     x = np.arange(1, totalDuration, step=s)
@@ -18,5 +15,20 @@ def BASK(bitStream: str):
     plt.plot(x, y)
     plt.show()
 
+def modulatePBSK(bitStream: str, symbolDuration = 1, fc = 1/2):
+    s = .001
+    totalDuration = symbolDuration * len(bitStream)
+    x = np.arange(1, totalDuration, step=s)
+    y = []
+    lastInterval = 0
+    for i in range(len(bitStream)):
+        interval = symbolDuration*int(1/s)*(i+1)
+        y.extend(np.sin(2*np.pi*fc*x[lastInterval:interval]+(np.pi if bitStream[i]=='1' else 0)))
+        lastInterval = interval
 
-BASK('000001111111111111')
+
+    plt.plot(x, y)
+    plt.show()
+
+
+modulatePBSK('0000001111100011')
