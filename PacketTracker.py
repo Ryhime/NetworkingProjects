@@ -16,6 +16,4 @@ for packet in capture:
     except:
         pass
 
-# ALSO MAY WANT TO PASS THE IP ADDRESS THROUGH NSLOOKUP FIRST TO ACTUALLY GET THE NAME
 print(ipAddresses)
-print(numPackets)

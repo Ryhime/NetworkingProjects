@@ -1,12 +1,12 @@
 import subprocess
 
 class DNSCacheEntry:
-    def __init__(self,ips:tuple,ttl:int)->None:
+    def __init__(self,ips:list[str],ttl:int)->None:
         self.ips = ips
         self.ttl = ttl
 
     def __str__(self) -> str:
-        return "IPs: "+", ".join(self.ips)+'\n'+"TTL: "+str(self.ttl)        
+        return "IPs: "+", ".join(self.ips)+'\n'+"TTL: "+str(self.ttl)
 
 class DNSServer:
     # ttl in seconds
@@ -28,13 +28,14 @@ class DNSServer:
                 mnEntry = currEntry
                 mnEntryKey = key
 
-        self.cacheSize-=len(key)+sum(list(map(lambda x: len(x),mnEntry.ips)))
+
+        self.cacheSize-=len(key)+sum(list(map(lambda x: len(x), mnEntry.ips)))
         del self.cache[mnEntryKey]
 
 
 
 
-    def addToCache(self,domainName:str,ips:tuple)->None:
+    def addToCache(self,domainName:str,ips:list[str])->None:
         sizeToAdd = len(domainName)+sum(list(map(lambda x: len(x),ips)))
         # Kick out
         if (self.cacheSize+sizeToAdd>self.maxCacheSize): self.removeFromCache()
@@ -56,7 +57,7 @@ class DNSServer:
         filtered = list(filter(lambda x: "nameserver" in x,spl))[0].rstrip()
         return filtered.split("= ")[1]
 
-    def getIpFromNameServerLookup(self,nameServerOutput:str)->str:
+    def getIpFromNameServerLookup(self,nameServerOutput:str):
         spl = nameServerOutput.split('\n')[2::]
         filtered = list(filter(lambda x: "Address:" in x,spl))
         splits = list(map(lambda x: x.rstrip().split(": ")[1],filtered))
@@ -64,9 +65,9 @@ class DNSServer:
 
     # Returns ip and how many servers needed to be reached out to get the ip address
     # Loop through domain name to reach out to each server
-    def dnsLookup(self,domainName:str) -> tuple[str,int]:
+    def dnsLookup(self,domainName:str) -> tuple[list[str], int]:
         # Check cache first
-        if (domainName in self.cache): 
+        if (domainName in self.cache):
             self.cache[domainName].ttl = self.ttl
             return (self.cache[domainName].ips,0)
 
@@ -88,11 +89,11 @@ class DNSServer:
         proc = subprocess.Popen(["nslookup",addrCovered,nameServer],stdout=subprocess.PIPE).communicate()[0].decode()
         ips = self.getIpFromNameServerLookup(proc)
 
-        self.addToCache(domainName,ips)
-        
+        self.addToCache(domainName, ips)
+
         return (ips, len(domainSplits)+1)
-    
+
 
 if (__name__=="__main__"):
     dns = DNSServer()
-    print(dns.dnsLookup("whitehouse.gov"))
+    print(dns.dnsLookup("amazon.com"))
